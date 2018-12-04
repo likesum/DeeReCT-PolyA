@@ -155,6 +155,7 @@ def train(dataset, hyper_dict):
 
         # Optimizer.
         global_step = tf.Variable(0, trainable=False)  # count the number of steps taken.
+        stepOp = tf.assign_add(global_step, 1).op
         learning_rate = tf.train.exponential_decay(tf_learning_rate, global_step, 3000, 0.96)
         optimizer = tf.train.MomentumOptimizer(learning_rate, tf_momentum).minimize(loss)
 
@@ -189,6 +190,7 @@ def train(dataset, hyper_dict):
                 feed_dict = {tf_train_dataset : batch_data, tf_train_labels : batch_labels}
                 _, l = session.run(
                 [optimizer, loss], feed_dict=feed_dict)
+                session.run(stepOp)
 
             valid_pred = valid_prediction.eval()
             valid_results.append(accuracy(valid_pred, dataset['valid_labels']))

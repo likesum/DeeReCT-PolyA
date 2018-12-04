@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import os
 import sys
@@ -85,16 +86,17 @@ def motif_data_split(pos_data, pos_labels, neg_data, neg_labels, num_folds, spli
     return data
 
 
-def shuffle(dataset, labels):
-    permutation = np.random.permutation(labels.shape[0])
+def shuffle(dataset, labels, randomState=None):
+    if randomState is None:
+        permutation = np.random.permutation(labels.shape[0])
+    else:
+        permutation = randomState.permutation(labels.shape[0])
     shuffled_data = dataset[permutation,:,:]
     shuffled_labels = labels[permutation]
     return shuffled_data, shuffled_labels
 
 
 def data_split(pos_data, pos_labels, neg_data, neg_labels, num_folds, split):
-    # pos_data, pos_labels = shuffle(pos_data, pos_labels)
-    # neg_data, neg_labels = shuffle(neg_data, neg_labels)
     pos_data_folds = np.array_split(pos_data, num_folds)
     neg_data_folds = np.array_split(neg_data, num_folds)
     pos_label_folds = np.array_split(pos_labels, num_folds)
@@ -131,22 +133,24 @@ def data_split(pos_data, pos_labels, neg_data, neg_labels, num_folds, split):
     return data
 
 
-def produce_dataset(num_folds, pos_path, neg_path):
+def produce_dataset(num_folds, pos_path, neg_path, seed=0):
     pos_data, pos_labels = get_data(pos_path, True)
     neg_data, neg_labels = get_data(neg_path, False)
-    pos_data, pos_labels = shuffle(pos_data, pos_labels)
-    neg_data, neg_labels = shuffle(neg_data, neg_labels)
+    randomState = np.random.RandomState(seed)
+    pos_data, pos_labels = shuffle(pos_data, pos_labels, randomState)
+    neg_data, neg_labels = shuffle(neg_data, neg_labels, randomState)
     print('Positive:', pos_data.shape, pos_labels.shape)
     print('Negative:', neg_data.shape, neg_labels.shape)
     return pos_data, pos_labels, neg_data, neg_labels
 
 
-def produce_motif_dataset(num_folds, pos_path, neg_path):
+def produce_motif_dataset(num_folds, pos_path, neg_path, seed=0):
     pos_data, pos_labels = get_motif_data(pos_path, True)
     neg_data, neg_labels = get_motif_data(neg_path, False)
+    randomState = np.random.RandomState(seed)
     for motif in HUMAN_MOTIF_VARIANTS:
-        pos_data[motif], pos_labels[motif] = shuffle(pos_data[motif], pos_labels[motif])
-        neg_data[motif], neg_labels[motif] = shuffle(neg_data[motif], neg_labels[motif])
+        pos_data[motif], pos_labels[motif] = shuffle(pos_data[motif], pos_labels[motif], randomState)
+        neg_data[motif], neg_labels[motif] = shuffle(neg_data[motif], neg_labels[motif], randomState)
         print('Positive %s:'%motif, pos_data[motif].shape, pos_labels[motif].shape)
         print('Negative %s:'%motif, neg_data[motif].shape, neg_labels[motif].shape)
     return pos_data, pos_labels, neg_data, neg_labels
