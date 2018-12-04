@@ -1,4 +1,6 @@
-# deepPolyA
-A Deep Learning model for PAS recognition
+# DeeReCT-PolyA
+An accurate and robust deep learning model for poly(A) signal identification.
 
-### Details coming soon
+- Demo of training code for DeeReCT-PolyA.
+- Including four poly(A) datasets, i.e., Dragon human dataset, Omni human dataset, SP and BL mouse dataset.
+- Group normalization is disabled.
